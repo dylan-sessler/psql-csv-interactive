@@ -32,16 +32,16 @@ WHERE table_schema='public'
 AND table_type='BASE TABLE';
 
 \prompt 'Please select the table you would like to query: ' csv_interactive_table_name
-\set quoted '''' :csv_interactive_table_name ''''
+\set quoted_table_name '''' :csv_interactive_table_name ''''
 
 SELECT
-EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted ) as is_table \gset
+EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted_table_name ) as is_table \gset
 
 \if :is_table
     \echo \\ -- do nothing
 \else
     -- Prompt that the user should exit
-    \set p '\\prompt ''[^C to exit -- ' :quoted ' is not a table]'' _var' \\ :p
+    \set p '\\prompt ''[^C to exit -- ' :quoted_table_name ' is not a table]'' _var' \\ :p
 \endif
 
 ------------------------------------
