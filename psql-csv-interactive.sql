@@ -64,7 +64,7 @@ EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted_table_
 ---------------------------------
 \set diff_edits '\\! git diff --color ' :ORIG_FILE ' ' :TMP_FILE ';' \\ :diff_edits
     \echo '(^^^ changes you intend to make)'
-    \prompt 'Is this good? [CTRL-C to abort, continue otherwise]' answer 
+    \prompt 'Is this good? [CTRL-C to abort, continue otherwise]' answer
 
 -----------------------------
 -- CHECK FOR ASYNC CHANGES --
@@ -79,7 +79,7 @@ LOCK :csv_interactive_table_name IN EXCLUSIVE MODE; -- will prevent writes while
 
 \set MSG '(^^^ SOMEONE ELSE CHANGED THE DATABASE SINCE YOU FIRST STARTED EDITING)'
 \set ASK '\n********** OVERWRITE THEIR CHANGES???\n\n********** ARE YOU THAT HEARTLESS???\n\n[CTRL-C TWICE to halt (losing your own changes), enter to nuke & pave (accept your edited version and delete their changes)]'
-\set check_overwrites '\\! bash -c '' diff &>/dev/null ' :ORIG_FILE ' ' :COMPARE_FILE ' || { mkdir -f /tmp/csvsqledits; cp -f ' :COMPARE_FILE ' ' :ORIG_FILE ' ' :TMP_FILE ' /tmp/csvsqledits; ' ' echo "' :MSG '" && echo -e "' :ASK '"; };'' ' 
+\set check_overwrites '\\! bash -c '' diff &>/dev/null ' :ORIG_FILE ' ' :COMPARE_FILE ' || { mkdir -f /tmp/csvsqledits; cp -f ' :COMPARE_FILE ' ' :ORIG_FILE ' ' :TMP_FILE ' /tmp/csvsqledits; ' ' echo "' :MSG '" && echo -e "' :ASK '"; };'' '
     :check_overwrites
     -- We need to prompt here because ^C'ing out of bash does not have an
     -- ... effect on execution of the rest of psql stuff.
@@ -94,7 +94,7 @@ TRUNCATE TABLE :csv_interactive_table_name;
 -- COPY :csv_interactive_table_name FROM STDOUT WITH (FORMAT CSV, HEADER);
 /* ^ wont work because stdout wont respect \o when going in the from-direction,
    will actually block and wait for user input.
- 
+
   Input form of this now-deprecated use of COPY:
     \o |tee /tmp/tmp.csv > /tmp/tmpo.csv
     COPY :csv_interactive_table_name TO STDOUT WITH (FORMAT CSV, HEADER);
@@ -105,10 +105,9 @@ TRUNCATE TABLE :csv_interactive_table_name;
 \echo 'FINISHED UPLOAD FROM CSV'
 
 END;
-$$ as csv_interactive_exec_scriptbody \gset 
+$$ as csv_interactive_exec_scriptbody \gset
 -- ^^^ This looks f'd up but we're adding this layer of indirection to protect
 -- ... our psql-stuff.
 -- Set output, Write to output, Reset output so no subsequent weirdness, then source the psql-script
 \set csv_interactive_exec '\\o /tmp/ciscript \\\\ \\qecho :csv_interactive_exec_scriptbody \\\\ \\o /dev/stdout \\\\ \\i /tmp/ciscript'
 -- ... or \g /tmp/ciscript after the sql cmd, but then that needlessly writes even if you dont use this script
-
