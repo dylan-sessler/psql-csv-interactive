@@ -49,7 +49,7 @@ EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted_table_
 -- Copy the Table & make a backup --
 ------------------------------------
 -- Copy the table to a buffer to be edited
-\set copy_table_to_buffer '\\copy "' :csv_interactive_table_name '" to ''' :TMP_FILE :CSV_CONFIG
+\set copy_table_to_buffer '\\copy ' :double_quoted_table_name ' to ''' :TMP_FILE :CSV_CONFIG
     :copy_table_to_buffer
 -- ... And take the backup of the original to compare later
 \set shell_copy '\\! cp ' :TMP_FILE ' ' :ORIG_FILE ';' \\ :shell_copy
@@ -72,7 +72,7 @@ EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted_table_
 -----------------------------
 LOCK :double_quoted_table_name IN EXCLUSIVE MODE; -- will prevent writes while we review what we are about to overwrite
 
-\set copy_table_to_buffer '\\copy "' :csv_interactive_table_name '" to ''' :COMPARE_FILE :CSV_CONFIG
+\set copy_table_to_buffer '\\copy ' :double_quoted_table_name ' to ''' :COMPARE_FILE :CSV_CONFIG
     :copy_table_to_buffer
 
 -- Check differences, and prompt if they are different
@@ -90,7 +90,7 @@ LOCK :double_quoted_table_name IN EXCLUSIVE MODE; -- will prevent writes while w
 -- OVERWRITE (IF WE HAVE NOT CANCELLED YET) --
 ----------------------------------------------
 TRUNCATE TABLE :double_quoted_table_name;
-\set copy_buffer_to_table '\\copy "' :csv_interactive_table_name '" from ''' :TMP_FILE :CSV_CONFIG \\ :copy_buffer_to_table
+\set copy_buffer_to_table '\\copy ' :double_quoted_table_name ' from ''' :TMP_FILE :CSV_CONFIG \\ :copy_buffer_to_table
 
 -- COPY :double_quoted_table_name FROM STDOUT WITH (FORMAT CSV, HEADER);
 /* ^ wont work because stdout wont respect \o when going in the from-direction,
