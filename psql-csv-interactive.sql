@@ -33,6 +33,7 @@ AND table_type='BASE TABLE';
 
 \prompt 'Please select the table you would like to query: ' csv_interactive_table_name
 \set quoted_table_name '''' :csv_interactive_table_name ''''
+\set double_quoted_table_name '"':csv_interactive_table_name'"'
 
 SELECT
 EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted_table_name ) as is_table \gset
@@ -69,7 +70,7 @@ EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted_table_
 -----------------------------
 -- CHECK FOR ASYNC CHANGES --
 -----------------------------
-LOCK :csv_interactive_table_name IN EXCLUSIVE MODE; -- will prevent writes while we review what we are about to overwrite
+LOCK :double_quoted_table_name IN EXCLUSIVE MODE; -- will prevent writes while we review what we are about to overwrite
 
 \set copy_table_to_buffer '\\copy "' :csv_interactive_table_name '" to ''' :COMPARE_FILE :CSV_CONFIG
     :copy_table_to_buffer
@@ -88,16 +89,16 @@ LOCK :csv_interactive_table_name IN EXCLUSIVE MODE; -- will prevent writes while
 ----------------------------------------------
 -- OVERWRITE (IF WE HAVE NOT CANCELLED YET) --
 ----------------------------------------------
-TRUNCATE TABLE :csv_interactive_table_name;
+TRUNCATE TABLE :double_quoted_table_name;
 \set copy_buffer_to_table '\\copy "' :csv_interactive_table_name '" from ''' :TMP_FILE :CSV_CONFIG \\ :copy_buffer_to_table
 
--- COPY :csv_interactive_table_name FROM STDOUT WITH (FORMAT CSV, HEADER);
+-- COPY :double_quoted_table_name FROM STDOUT WITH (FORMAT CSV, HEADER);
 /* ^ wont work because stdout wont respect \o when going in the from-direction,
    will actually block and wait for user input.
 
   Input form of this now-deprecated use of COPY:
     \o |tee /tmp/tmp.csv > /tmp/tmpo.csv
-    COPY :csv_interactive_table_name TO STDOUT WITH (FORMAT CSV, HEADER);
+    COPY :double_quoted_table_name TO STDOUT WITH (FORMAT CSV, HEADER);
     \o /dev/stdout
     --make sure the pipe is closed & buffers flush
 */
