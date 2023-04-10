@@ -60,11 +60,12 @@ EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = :quoted_table_
 ----------
 -- EDIT --
 ----------
-\set edit '\\! ${EDITOR-':DEFAULT_EDITOR_FOR_EVAN '}' ' ' :TMP_FILE \\ :edit
+\set edit '\\! ' :EDITOR ' ' :TMP_FILE \\ :edit
 
 ---------------------------------
 -- FINISHED: No longer editing --
 ---------------------------------
+\set sci_notation_coercion '\\! sed -Ei \'s/([0-9]+)e-([0-9]+)/\\1E-\\2/g\' ' :ORIG_FILE ';' \\ :sci_notation_coercion
 \set diff_edits '\\! git diff --color ' :ORIG_FILE ' ' :TMP_FILE ';' \\ :diff_edits
     \echo '(^^^ changes you intend to make)'
     \prompt 'Is this good? [CTRL-C to abort, continue otherwise]' answer
@@ -76,6 +77,7 @@ LOCK :double_quoted_table_name IN EXCLUSIVE MODE; -- will prevent writes while w
 
 \set copy_table_to_buffer '\\copy ' :double_quoted_table_name ' to ''' :COMPARE_FILE :CSV_CONFIG
     :copy_table_to_buffer
+\set sci_notation_coercion '\\! sed -Ei \'s/([0-9]+)e-([0-9]+)/\\1E-\\2/g\' ' :COMPARE_FILE ';' \\ :sci_notation_coercion
 
 -- Check differences, and prompt if they are different
 \set diff_async_changes '\\! git diff --color ' :ORIG_FILE ' ' :COMPARE_FILE \\ :diff_async_changes
