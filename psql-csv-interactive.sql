@@ -3,6 +3,9 @@
 ---------------------
 :s cie :csv_interactive_exec
 
+--Set once on source so you can update if you want.
+\set EDITOR 'libreoffice --nologo --nolockcheck --quickstart --norestore'
+
 ----------------------------
 -- HEREDOC FOR PSQL STUFF --
 ----------------------------
@@ -14,7 +17,6 @@ SELECT $$
 \set ORIG_FILE '/tmp/tmpo.csv'
 \set CSV_CONFIG ''' WITH DELIMITER '','' CSV HEADER NULL ''NULL'''
 \set COMPARE_FILE '/tmp/tmp-about-to-overwrite.csv'
-\set DEFAULT_EDITOR_FOR_EVAN 'libreoffice --nologo --nolockcheck --quickstart --norestore'
 -- Add this to debug complications cmd-constructions
 \set ecmd ':e :cmd \\prompt ''[pause]'' pause' \\ -- comments work after \\ for meta-commands
     /* :e :cmd */
